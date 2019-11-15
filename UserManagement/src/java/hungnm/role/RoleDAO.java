@@ -13,19 +13,31 @@ import javax.naming.NamingException;
 import DButil.DButil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
 /**
  *
  * @author SE130008
  */
 public class RoleDAO implements Serializable{
-    public List<String> findRole() throws NamingException, SQLException{
+    public List<RoleDTO> findRole() throws NamingException, SQLException{
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
+        List<RoleDTO> result = null;
         try{
             con = DButil.makeConnection();
-            String stm = "";
+            String sql = "SELECT type, id "
+                    + "FROM tbl_Role";
+            stm = con.prepareStatement(sql);
+            rs = stm.executeQuery();
+            result = new ArrayList<>();
+            while(rs.next()){
+                String type = rs.getString("type");
+                int id = rs.getInt("id");
+                RoleDTO dto = new RoleDTO(type, id);
+                result.add(dto);
+            }                   
         }finally{
             if(rs!=null){
                 rs.close();
@@ -37,5 +49,6 @@ public class RoleDAO implements Serializable{
                 con.close();
             }
         }
+        return result;
     }
 }

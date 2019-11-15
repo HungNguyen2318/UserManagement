@@ -72,23 +72,30 @@ public class UserDAO implements Serializable {
 
     }
 
-    public List<UserDTO> findByLikeName(String searchValue)
+    public List<UserDTO> findByLikeName(String searchValue, String roleSearchValue)
             throws SQLException, NamingException {
         UserDTO dto = null;
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
+        String sql = null;
         List<UserDTO> listUser = new ArrayList<>();
-        
+        System.out.println("role: " + roleSearchValue);
         try {
             con = DButil.makeConnection();
-            String sql = "SELECT userId, password, username, email, phone,image, r.type AS type "
+            sql = "SELECT userId, password, username, email, phone,image, r.type AS type "
                     + "FROM tbl_Role r inner join tbl_User u "
                     + "ON r.id = u.roleId "
                     + "WHERE u.username LIKE ? AND status = ?";
+            if(roleSearchValue!=null){
+                sql = sql + " AND type = ?";
+            }
             stm = con.prepareStatement(sql);
             stm.setString(1, "%" + searchValue + "%");
             stm.setString(2, "active");
+            if(roleSearchValue!=null){
+                stm.setString(3, roleSearchValue);
+            }           
             rs = stm.executeQuery();
 
             while (rs.next()) {
@@ -99,6 +106,15 @@ public class UserDAO implements Serializable {
                 String phone = rs.getString("phone");
                 String image = rs.getString("image");
                 String role = rs.getString("type");
+                
+                System.out.println(userId);
+                System.out.println(password);
+                System.out.println(username);
+                System.out.println(email);
+                System.out.println(phone);
+                System.out.println(image);
+                System.out.println(role);
+                
                 dto = new UserDTO(userId, password, username, email, phone, image, role, image);
                 listUser.add(dto);
             }

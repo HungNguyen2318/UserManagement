@@ -5,6 +5,8 @@
  */
 package hungnm.servlet;
 
+import hungnm.role.RoleDAO;
+import hungnm.role.RoleDTO;
 import hungnm.user.UserDAO;
 import hungnm.user.UserDTO;
 import java.io.IOException;
@@ -48,18 +50,24 @@ public class SearchByserNameServlet extends HttpServlet {
         HttpSession session = request.getSession(); 
         //1. Get value search from search.jsp
         String searchValue = request.getParameter("txtValueSearch");
-        try (PrintWriter out = response.getWriter()) {
+        String roleSearchValue = request.getParameter("roleSearchValue");
+        PrintWriter out = response.getWriter();
+        try {
             if (session.isNew()) {
                 url = LOGIN_PAGE;
             } else if (!searchValue.trim().equals("")) {   //make sure search value not empty
                 //2. Create new class UserDAO to call method... 
                 UserDAO dao = new UserDAO();
+                RoleDAO rdao = new RoleDAO();
                 //3. Prepare List to contain result...
                 List<UserDTO> result = new ArrayList<>();
+                List<RoleDTO> listRole = new ArrayList<>();
                 //4. Call method findByLikeName
-                result = dao.findByLikeName(searchValue);
+                result = dao.findByLikeName(searchValue,roleSearchValue);
+                listRole = rdao.findRole();
                 //5. Set result to Attribute
-                request.setAttribute("Result_Search", result);
+                request.setAttribute("RESULT_SEARCH", result);
+                request.setAttribute("LIST_ROLE", listRole);
                 //6. Set url to View page after Search successfull
                 url = VIEW_PAGE;
             }
@@ -68,8 +76,9 @@ public class SearchByserNameServlet extends HttpServlet {
         } catch (NamingException ex) {
             log("NamingException: " + ex.getMessage());
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher("search.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
+            out.close();
         }
 
     }
