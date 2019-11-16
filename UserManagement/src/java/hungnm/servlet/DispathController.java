@@ -23,6 +23,7 @@ private final String LOGIN_PAGE = "login.html";
 private final String LOGIN_SERVLET = "LoginServlet";
 private final String LOGOUT_SERVLET = "LogoutServlet";
 private final String SEARCH_SERVLET = "SearchByserNameServlet";
+private final String SEARCH_BY_USERID_SERVLET = "SearchByUserIdServlet";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -48,7 +49,10 @@ private final String SEARCH_SERVLET = "SearchByserNameServlet";
                 url = LOGOUT_SERVLET;
             }else if(button.equals("Search")){
                 url = SEARCH_SERVLET;
+            }else if(button.equals("Profile")){
+                url= SEARCH_BY_USERID_SERVLET;
             }
+                    
         }finally{
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);

@@ -29,13 +29,14 @@ public class UserDAO implements Serializable {
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
-        String username = null;
+        String result = null;
         password = getSHA_256SecurePassword(password);
         try {
             con = DButil.makeConnection();
             System.out.println("ket noi vao db");
-            String sql = "select username "
-                    + "from tbl_User "
+            String sql = "select username, r.type AS type "
+                    + "FROM tbl_Role r inner join tbl_User u "
+                    + "ON r.id = u.roleId "
                     + "where userId = ? and password = ? and status = ?";
             stm = con.prepareStatement(sql);
             stm.setString(1, userId);
@@ -43,7 +44,9 @@ public class UserDAO implements Serializable {
             stm.setString(3, "active");
             rs = stm.executeQuery();
             if (rs.next()) {
-                username = rs.getString("username");
+                String username = rs.getString("username");
+                String role = rs.getString("type");
+                result = username + ":" + role;
             }
         } finally {
             if (con != null) {
@@ -53,7 +56,7 @@ public class UserDAO implements Serializable {
                 stm.close();
             }
         }
-        return username;
+        return result;
     }
 
     private String getSHA_256SecurePassword(String passwordToHash) throws NoSuchAlgorithmException {
@@ -130,5 +133,57 @@ public class UserDAO implements Serializable {
             }
         }
         return listUser;
+    }
+    
+    public UserDTO findByUserId(String searchValue)
+            throws SQLException, NamingException {
+        UserDTO dto = null;
+        Connection con = null;
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        
+      
+        try {
+            con = DButil.makeConnection();
+            String sql = "SELECT userId, password, username, email, phone,image, r.type AS type "
+                    + "FROM tbl_Role r inner join tbl_User u "
+                    + "ON r.id = u.roleId "
+                    + "WHERE u.userId = ? AND status = ?";
+            stm = con.prepareStatement(sql);
+            stm.setString(1, searchValue);
+            stm.setString(2, "active");           
+            rs = stm.executeQuery();
+
+            if (rs.next()) {
+                String userId = rs.getString("userId");
+                String password = rs.getString("password");
+                String username = rs.getString("username");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String image = rs.getString("image");
+                String role = rs.getString("type");
+                
+                System.out.println(userId);
+                System.out.println(password);
+                System.out.println(username);
+                System.out.println(email);
+                System.out.println(phone);
+                System.out.println(image);
+                System.out.println(role);
+                
+                dto = new UserDTO(userId, password, username, email, phone, image, role, image);
+            }
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stm != null) {
+                stm.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+        return dto;
     }
 }

@@ -5,15 +5,13 @@
  */
 package hungnm.servlet;
 
-import hungnm.role.RoleDAO;
-import hungnm.role.RoleDTO;
 import hungnm.user.UserDAO;
 import hungnm.user.UserDTO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -21,18 +19,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author SE130008
  */
-@WebServlet(name = "SearchByserNameServlet", urlPatterns = {"/SearchByserNameServlet"})
-public class SearchByserNameServlet extends HttpServlet {
+@WebServlet(name = "SearchByUserIdServlet", urlPatterns = {"/SearchByUserIdServlet"})
+public class SearchByUserIdServlet extends HttpServlet {
 
     public final String LOGIN_PAGE = "login.html";
-    public final String VIEW_PAGE = "search.jsp";
-    public final String SEARCH_PAGE = "search.jsp";
+    public final String USER_VIEW_PAGE = "user.jsp";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,30 +42,15 @@ public class SearchByserNameServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String url = SEARCH_PAGE;
-        HttpSession session = request.getSession();      
-        //1. Get value search from search.jsp
-        String searchValue = request.getParameter("txtValueSearch");
-        String roleSearchValue = request.getParameter("roleSearchValue");
         PrintWriter out = response.getWriter();
+        String searchValue = request.getParameter("key");
+        String url = LOGIN_PAGE;
         try {
-            if (session.isNew()) {
-                url = LOGIN_PAGE;
-            } else if (!searchValue.trim().equals("")) {   //make sure search value not empty
-                //2. Create new class UserDAO to call method... 
+            if (!searchValue.equals("")) {
                 UserDAO dao = new UserDAO();
-                RoleDAO rdao = new RoleDAO();
-                //3. Prepare List to contain result...
-                List<UserDTO> result = new ArrayList<>();
-                List<RoleDTO> listRole = new ArrayList<>();
-                //4. Call method findByLikeName
-                result = dao.findByLikeName(searchValue,roleSearchValue);
-                listRole = rdao.findRole();
-                //6. Set result to Attribute
-                request.setAttribute("RESULT_SEARCH", result);
-                request.setAttribute("LIST_ROLE", listRole);
-                //7. Set url to View page after Search successfull
-                url = VIEW_PAGE;
+                UserDTO dto = dao.findByUserId(searchValue);
+                request.setAttribute("USER_PROFILE", dto);
+                url=USER_VIEW_PAGE;
             }
         } catch (SQLException ex) {
             log("SQLException: " + ex.getMessage());
@@ -80,7 +61,6 @@ public class SearchByserNameServlet extends HttpServlet {
             rd.forward(request, response);
             out.close();
         }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

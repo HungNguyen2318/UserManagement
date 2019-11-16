@@ -15,7 +15,7 @@
     <body>
         <h1>Search Page</h1>
     <td><img src="images/user01.png" width="120" height="150"></td>
-    <c:set var="user" value="${sessionScope.USERLOGIN}"/>    
+        <c:set var="user" value="${sessionScope.USERLOGIN}"/>    
     <h5>Welcome, ${user}</h5>
     <form action="DispathController">
         <input type="submit" name="btAction" value="Log Out"/>
@@ -25,70 +25,69 @@
         <input type="submit" name="btAction" value="Search"/>
     </form>
         
-        
+
 
     <c:set var="searchValue" value="${param.txtValueSearch}"/>
-    <c:if test="${not empty searchValue}">
-        <!-- create tab -->
-        <c:set var="listRole" value="${LIST_ROLE}"/>
-        <c:if test="${not empty listRole}">
+    <!-- create tab -->
+    <c:set var="listRole" value="${LIST_ROLE}"/>
+    <c:if test="${not empty listRole}">
+        <c:url var="urlRewriting" value="DispathController">
+            <c:param name="btAction" value="Search"/>                   
+            <c:param name="txtValueSearch" value="${searchValue}"/>
+        </c:url>
+        <a href="${urlRewriting}">All</a>
+        <c:forEach var="item" items="${listRole}">
             <c:url var="urlRewriting" value="DispathController">
-                    <c:param name="btAction" value="Search"/>                   
-                    <c:param name="txtValueSearch" value="${searchValue}"/>
-                </c:url>
-                <a href="${urlRewriting}">All</a>
-                <c:forEach var="item" items="${listRole}">
-                <c:url var="urlRewriting" value="DispathController">
-                    <c:param name="btAction" value="Search"/>
-                    <c:param name="roleSearchValue" value="${item.type}"/>
-                    <c:param name="txtValueSearch" value="${searchValue}"/>
-                </c:url>
-                <a href="${urlRewriting}">${item.type}</a>
-            </c:forEach>
-        </c:if>
-        <!-- create new table -->        
-        <c:set var="result" value="${requestScope.RESULT_SEARCH}"/>      
-        <c:if test="${not empty result}">           
-            <table border="1">
-                <thead>
+                <c:param name="btAction" value="Search"/>
+                <c:param name="roleSearchValue" value="${item.type}"/>
+                <c:param name="txtValueSearch" value="${searchValue}"/>
+            </c:url>
+            <a href="${urlRewriting}">${item.type}</a>
+        </c:forEach>
+    </c:if>
+            
+            <a href="createNewUser.jsp">Create new account</a>        
+    <!-- create new table -->        
+    <c:set var="result" value="${requestScope.RESULT_SEARCH}"/>      
+    <c:if test="${not empty result}">           
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>User ID</th>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Avatar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="item" items="${result}" varStatus="counter">
                     <tr>
-                        <th>No.</th>
-                        <th>User ID</th>
-                        <th>User Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Role</th>
-                        <th>Avatar</th>
+                        <td>${counter.count}</td>
+                        <td>
+                            ${item.userId}
+                        </td>
+                        <td>
+                            ${item.username}
+                        </td>
+                        <td>
+                            ${item.email}
+                        </td>
+                        <td>
+                            ${item.phone}
+                        </td>
+                        <td>
+                            ${item.role}
+                        </td>
+                        <td>
+                            <img src="images/${item.image}" width="150" height="150">
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="item" items="${result}" varStatus="counter">
-                        <tr>
-                            <td>${counter.count}</td>
-                            <td>
-                                ${item.userId}
-                            </td>
-                            <td>
-                                ${item.username}
-                            </td>
-                            <td>
-                                ${item.email}
-                            </td>
-                            <td>
-                                ${item.phone}
-                            </td>
-                            <td>
-                                ${item.role}
-                            </td>
-                            <td>
-                                <img src="images/${item.image}" width="150" height="150">
-                            </td>
-                        </tr>
-                    </c:forEach>                    
-                </tbody>
-            </table>
-
-        </c:if>
+                </c:forEach>                    
+            </tbody>
+        </table>
     </c:if>    
 </body>
 </html>
