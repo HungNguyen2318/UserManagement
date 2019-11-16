@@ -19,36 +19,68 @@ import java.util.ArrayList;
  *
  * @author SE130008
  */
-public class RoleDAO implements Serializable{
-    public List<RoleDTO> findRole() throws NamingException, SQLException{
+public class RoleDAO implements Serializable {
+
+    public List<RoleDTO> findRole() throws NamingException, SQLException {
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
         List<RoleDTO> result = null;
-        try{
+        try {
             con = DButil.makeConnection();
             String sql = "SELECT type, id "
                     + "FROM tbl_Role";
             stm = con.prepareStatement(sql);
             rs = stm.executeQuery();
             result = new ArrayList<>();
-            while(rs.next()){
+            while (rs.next()) {
                 String type = rs.getString("type");
                 int id = rs.getInt("id");
                 RoleDTO dto = new RoleDTO(type, id);
                 result.add(dto);
-            }                   
-        }finally{
-            if(rs!=null){
+            }
+        } finally {
+            if (rs != null) {
                 rs.close();
             }
-            if(stm!=null){
+            if (stm != null) {
                 stm.close();
             }
-            if(con!=null){
+            if (con != null) {
                 con.close();
             }
         }
         return result;
+    }
+
+    public int findIdByType(String type)
+            throws NamingException, SQLException {
+        Connection con = null;
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        int roleId = 2;
+        try {
+            con = DButil.makeConnection();
+            String sql = "SELECT id "
+                    + "FROM tbl_Role "
+                    + "WHERE type = ?";
+            stm = con.prepareStatement(sql);
+            stm.setString(1, type);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                roleId = rs.getInt("id");
+            }
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stm != null) {
+                stm.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+        return roleId;
     }
 }

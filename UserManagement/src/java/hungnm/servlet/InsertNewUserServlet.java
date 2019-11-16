@@ -5,16 +5,23 @@
  */
 package hungnm.servlet;
 
+import hungnm.role.RoleDAO;
+import hungnm.user.UserDAO;
+import hungnm.user.UserDTO;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,15 +35,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
  *
  * @author SE130008
  */
-public class DispathController extends HttpServlet {
-
-    private final String INIT_APP_SERVLET = "InitAppServlet";
-    private final String LOGIN_PAGE = "login.html";
-    private final String LOGIN_SERVLET = "LoginServlet";
-    private final String LOGOUT_SERVLET = "LogoutServlet";
-    private final String SEARCH_SERVLET = "SearchByserNameServlet";
-    private final String SEARCH_BY_USERID_SERVLET = "SearchByUserIdServlet";
-    private final String CREATE_NEW_USER_SERVLET = "InsertNewUserServlet";
+@WebServlet(name = "InsertNewUserServlet", urlPatterns = {"/InsertNewUserServlet"})
+public class InsertNewUserServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -51,24 +51,11 @@ public class DispathController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String url = LOGIN_PAGE;
-        String button = request.getParameter("btAction");
 
         try {
             boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
             if (!isMultiPart) {
-                if (button == null) {
 
-                } else if (button.equals("Login")) {
-                    log("create new user");
-                    url = LOGIN_SERVLET;
-                } else if (button.equals("Log Out")) {
-                    url = LOGOUT_SERVLET;
-                } else if (button.equals("Search")) {
-                    url = SEARCH_SERVLET;
-                } else if (button.equals("Profile")) {
-                    url = SEARCH_BY_USERID_SERVLET;
-                }
             } else {
                 FileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
@@ -82,19 +69,43 @@ public class DispathController extends HttpServlet {
                     FileItem item = (FileItem) iter.next();
                     if (item.isFormField()) {
                         params.put(item.getFieldName(), item.getString());
+                    } else {
+                        try {
+                            String itemName = item.getName();
+                            fileName = itemName.substring(itemName.lastIndexOf("\\") + 1);
+                            System.out.println("path: " + fileName);
+                            String RealPath = getServletContext().getRealPath("/") + "images\\" + fileName;
+                            System.out.println("RealPath: " + RealPath);
+                            File saveFile = new File(RealPath);
+                            item.write(saveFile);
+                            System.out.println(fileName);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-
-                button = (String) params.get("btAction");
-                if (button.equals("Register")) {
-                    log("create new user");
-                    url = CREATE_NEW_USER_SERVLET;
-                }
+                String userId = (String) params.get("txtUserId");
+                String password = (String) params.get("txtPassword");
+                String confirmPassword = (String) params.get("txtPasswordConfirm");
+                String username = (String) params.get("txtUsername");
+                String email = (String) params.get("txtEmail");
+                String phone = (String) params.get("txtPhone");
+                String role = (String) params.get("txtRole");
+                UserDTO userDTO = new UserDTO(userId, password, username, email, phone, fileName, role, "active");
+                UserDAO userDAO = new UserDAO();
+                boolean resultCreateUser = userDAO.createAccount(userDTO);
+                request.setAttribute("RESULT_CREATR_ACCOUNT", resultCreateUser);
             }
         } catch (FileUploadException ex) {
             log("FileUploadException: " + ex.getMessage());
-        } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
+        } catch (NamingException ex) {
+            log("NamingException: " + ex.getMessage());
+        } catch (SQLException ex) {
+            log("SQLException: " + ex.getMessage());
+        } catch (NoSuchAlgorithmException ex) {
+            log("NoSuchAlgorithmException: " + ex.getMessage());
+        }finally{
+            RequestDispatcher rd = request.getRequestDispatcher("createNewUser.jsp");
             rd.forward(request, response);
             out.close();
         }

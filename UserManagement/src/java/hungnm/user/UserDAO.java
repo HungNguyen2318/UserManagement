@@ -6,6 +6,8 @@
 package hungnm.user;
 
 import DButil.DButil;
+import hungnm.role.RoleDAO;
+import hungnm.role.RoleDTO;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -59,7 +61,7 @@ public class UserDAO implements Serializable {
         return result;
     }
 
-    private String getSHA_256SecurePassword(String passwordToHash) throws NoSuchAlgorithmException {
+    public String getSHA_256SecurePassword(String passwordToHash) throws NoSuchAlgorithmException {
         String generatedPassword = null;
         byte[] temp = new byte[16];
         byte[] bytes = null;
@@ -186,4 +188,49 @@ public class UserDAO implements Serializable {
         }
         return dto;
     }
+    
+    public boolean createAccount(UserDTO userDTO) 
+        throws NamingException, SQLException, NoSuchAlgorithmException {
+            //1.Open connection
+            Connection con = null;
+            PreparedStatement stm = null;
+            RoleDAO roleDAO = new RoleDAO();
+
+            try {
+                con = DButil.makeConnection();
+                System.out.println("co connection");
+                if (con != null) {
+                    System.out.println("vao dc r");
+                    //2.Create sql String
+                    String sql = "INSERT INTO tbl_User(userId,password,username, email, phone , image , roleId, status) "
+                            + "values (?,?,?,?,?,?,?,?)";
+                    //3.Create Statement and set values to parameters
+                    stm = con.prepareStatement(sql);
+                    stm.setString(1, userDTO.getUserId());
+                    stm.setString(2, getSHA_256SecurePassword(userDTO.getPassword()));
+                    stm.setString(3, userDTO.getUsername());
+                    stm.setString(4, userDTO.getEmail());
+                    stm.setString(5, userDTO.getPhone());
+                    stm.setString(6, userDTO.getImage());
+                    stm.setInt(7, roleDAO.findIdByType(userDTO.getRole()));
+                    stm.setString(8, "active");
+                    //4.Execute Query
+                    int row = stm.executeUpdate();
+                    //5.Process result
+                    if (row > 0) {
+                        return true;
+                    }
+                }//end if con existed 
+            } finally {
+                if (stm != null) {
+                    stm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            }
+            return false;
+        }
+    
+    
 }
