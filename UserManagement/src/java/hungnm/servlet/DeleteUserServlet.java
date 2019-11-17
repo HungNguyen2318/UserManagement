@@ -5,30 +5,26 @@
  */
 package hungnm.servlet;
 
+import hungnm.user.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.servlet.RequestDispatcher;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
  *
  * @author SE130008
  */
-public class DispathController extends HttpServlet {
-
-    private final String INIT_APP_SERVLET = "InitAppServlet";
-    private final String LOGIN_PAGE = "login.html";
-    private final String LOGIN_SERVLET = "LoginServlet";
-    private final String LOGOUT_SERVLET = "LogoutServlet";
-    private final String SEARCH_SERVLET = "SearchByserNameServlet";
-    private final String SEARCH_BY_USERID_SERVLET = "SearchByUserIdServlet";
-    private final String CREATE_NEW_USER_SERVLET = "InsertNewUserServlet";
-    private final String DELETE_USER_SERVLET = "DeleteUserServlet";
-
+@WebServlet(name = "DeleteUserServlet", urlPatterns = {"/DeleteUserServlet"})
+public class DeleteUserServlet extends HttpServlet {
+private final String ERROR_PAGE = "search.jsp";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -42,29 +38,24 @@ public class DispathController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String url = LOGIN_PAGE;
-        String button = request.getParameter("btAction");
+        String userId = request.getParameter("txtUserId");
+        String searchValue = request.getParameter("lastSearchValue");
+        
+        String urlRewriting = ERROR_PAGE;
         try {
-            if (button == null) {
-                boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
-                if (isMultiPart) {
-                    url = CREATE_NEW_USER_SERVLET;
-                }
-            } else if (button.equals("Login")) {
-                log("create new user");
-                url = LOGIN_SERVLET;
-            } else if (button.equals("Log Out")) {
-                url = LOGOUT_SERVLET;
-            } else if (button.equals("Search")) {
-                url = SEARCH_SERVLET;
-            } else if (button.equals("Profile")) {
-                url = SEARCH_BY_USERID_SERVLET;
-            }else if(button.equals("Delete")){
-                url = DELETE_USER_SERVLET;
+            UserDAO userDAO = new UserDAO();
+            boolean result = userDAO.deleteUser(userId);
+            if (result) {
+                urlRewriting = "DispathController"
+                        + "?btAction=Search"
+                        + "&txtValueSearch=" + searchValue;
             }
+        } catch (NamingException ex) {
+            log("NamingException: " + ex.getMessage());
+        } catch (SQLException ex) {
+            log("SQLException: " + ex.getMessage());
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
-            rd.forward(request, response);
+            response.sendRedirect(urlRewriting);
             out.close();
         }
     }

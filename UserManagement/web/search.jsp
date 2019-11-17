@@ -45,8 +45,8 @@
             <a href="${urlRewriting}">${item.type}</a>
         </c:forEach>
     </c:if>
-            
-            <a href="createNewUser.jsp">Create new account</a>        
+    <br/>        
+    <a href="createNewUser.jsp">Create new account</a>        
     <!-- create new table -->        
     <c:set var="result" value="${requestScope.RESULT_SEARCH}"/>      
     <c:if test="${not empty result}">           
@@ -60,6 +60,7 @@
                     <th>Phone</th>
                     <th>Role</th>
                     <th>Avatar</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -83,6 +84,14 @@
                         </td>
                         <td>
                             <img src="images/${item.image}" width="150" height="150">
+                        </td>
+                        <td>
+                            <c:url var="urlRewritingDelete" value="DispathController">
+                                <c:param name="btAction" value="Delete"/>
+                                <c:param name="txtUserId" value="${item.userId}"/>
+                                <c:param name="lastSearchValue" value="${searchValue}"/>
+                            </c:url>
+                            <a href="${urlRewritingDelete}">Delete</a>
                         </td>
                     </tr>
                 </c:forEach>                    

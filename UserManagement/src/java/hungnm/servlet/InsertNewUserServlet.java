@@ -51,7 +51,13 @@ public class InsertNewUserServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-
+        String userId = null;
+        String password = null;
+        String confirmPassword = null;
+        String username = null;
+        String email = null;
+        String phone = null;
+        String role = null;
         try {
             boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
             if (!isMultiPart) {
@@ -84,13 +90,22 @@ public class InsertNewUserServlet extends HttpServlet {
                         }
                     }
                 }
-                String userId = (String) params.get("txtUserId");
-                String password = (String) params.get("txtPassword");
-                String confirmPassword = (String) params.get("txtPasswordConfirm");
-                String username = (String) params.get("txtUsername");
-                String email = (String) params.get("txtEmail");
-                String phone = (String) params.get("txtPhone");
-                String role = (String) params.get("txtRole");
+                userId = (String) params.get("txtUserId");
+                password = (String) params.get("txtPassword");
+                confirmPassword = (String) params.get("txtPasswordConfirm");
+                username = (String) params.get("txtUsername");
+                email = (String) params.get("txtEmail");
+                phone = (String) params.get("txtPhone");
+                role = (String) params.get("txtRole");
+
+                System.out.println(userId);
+                System.out.println(password);
+                System.out.println(username);
+                System.out.println(email);
+                System.out.println(phone);
+                System.out.println(fileName);
+                System.out.println(role);
+
                 UserDTO userDTO = new UserDTO(userId, password, username, email, phone, fileName, role, "active");
                 UserDAO userDAO = new UserDAO();
                 boolean resultCreateUser = userDAO.createAccount(userDTO);
@@ -104,7 +119,7 @@ public class InsertNewUserServlet extends HttpServlet {
             log("SQLException: " + ex.getMessage());
         } catch (NoSuchAlgorithmException ex) {
             log("NoSuchAlgorithmException: " + ex.getMessage());
-        }finally{
+        } finally {
             RequestDispatcher rd = request.getRequestDispatcher("createNewUser.jsp");
             rd.forward(request, response);
             out.close();

@@ -50,7 +50,9 @@ public class SearchByserNameServlet extends HttpServlet {
         HttpSession session = request.getSession();      
         //1. Get value search from search.jsp
         String searchValue = request.getParameter("txtValueSearch");
+        log("Search value: " + searchValue);
         String roleSearchValue = request.getParameter("roleSearchValue");
+        log("Role value: " + roleSearchValue);
         PrintWriter out = response.getWriter();
         try {
             if (session.isNew()) {

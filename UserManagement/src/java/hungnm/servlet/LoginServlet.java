@@ -5,6 +5,8 @@
  */
 package hungnm.servlet;
 
+import hungnm.role.RoleDAO;
+import hungnm.role.RoleDTO;
 import hungnm.user.UserDAO;
 import hungnm.user.UserDTO;
 import java.io.IOException;

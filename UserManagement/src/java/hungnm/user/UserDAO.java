@@ -7,7 +7,6 @@ package hungnm.user;
 
 import DButil.DButil;
 import hungnm.role.RoleDAO;
-import hungnm.role.RoleDTO;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -27,7 +26,6 @@ public class UserDAO implements Serializable {
 
     public String checkLogin(String userId, String password)
             throws SQLException, NamingException, NoSuchAlgorithmException {
-        UserDTO dto = null;
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
@@ -232,5 +230,37 @@ public class UserDAO implements Serializable {
             return false;
         }
     
-    
+    public boolean deleteUser(String userId)
+            throws NamingException, SQLException {
+        //1.Open connection
+        Connection con = null;
+        PreparedStatement stm = null;
+
+        try {
+            con = DButil.makeConnection();
+            if (con != null) {
+                //2.Create sql String
+                String sql = "UPDATE tbl_User "
+                        + "SET status = 'InActive' "
+                        + "Where userId = ?";
+                //3.Create Statement and set values to parameters
+                stm = con.prepareStatement(sql);
+                stm.setString(1, userId);
+                //4.Execute Query
+                int row = stm.executeUpdate();
+                //5.Process result
+                if (row > 0) {
+                    return true;
+                }
+            }//end if con existed 
+        } finally {
+            if (stm != null) {
+                stm.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+        return false;
+    } 
 }

@@ -18,18 +18,19 @@
         <h1>Sign Up Form</h1>
         <c:set var="resultCreate" value="${requestScope.RESULT_CREATR_ACCOUNT}"/>
         <c:if test="${resultCreate}">
-            <p color="green">Successful!!!</p>
+            <font color="green">Successful!!!</font>
         </c:if>
         <form action="DispathController" method="POST" enctype="multipart/form-data">
-            UserID: <input type="text" name="txtUserId" value=""/>
-            Password: <input type="password" name="txtPassword" value=""/>
-            Confirm: <input type="password" name="txtPasswordConfirm" value=""/>
-            Username: <input type="text" name="txtUsername" value=""/>
-            Email: <input type="email" name="txtEmail" value=""/>
-            Phone: <input type="number" name="txtPhone" value=""/>
-            Role: <input type="text" name="txtRole" value=""/>
-            Avatar: <input type="file" name="image" value=""/>
+            UserID: <input type="text" name="txtUserId" value=""/><br/>
+            Password: <input type="password" name="txtPassword" value=""/><br/>
+            Confirm: <input type="password" name="txtPasswordConfirm" value=""/><br/>
+            Username: <input type="text" name="txtUsername" value=""/><br/>
+            Email: <input type="email" name="txtEmail" value=""/><br/>
+            Phone: <input type="number" name="txtPhone" value=""/><br/>
+            Role: <input type="text" name="txtRole" value=""/><br/>
+            Avatar: <input type="file" name="image" value=""/><br/>
             <input type="submit" name="btAction" value="Register"/>               
         </form>
+            <a href="search.jsp">Back to search page...</a>
     </body>
 </html>
