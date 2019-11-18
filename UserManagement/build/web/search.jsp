@@ -24,7 +24,7 @@
         Search: <input type="text" name="txtValueSearch" value="${param.txtValueSearch}">       
         <input type="submit" name="btAction" value="Search"/>
     </form>
-        
+
 
 
     <c:set var="searchValue" value="${param.txtValueSearch}"/>
@@ -61,29 +61,37 @@
                     <th>Role</th>
                     <th>Avatar</th>
                     <th>Delete</th>
+                    <th>Edit</th>
                 </tr>
             </thead>
             <tbody>
                 <c:forEach var="item" items="${result}" varStatus="counter">
+                <form action="DispathController">
                     <tr>
                         <td>${counter.count}</td>
                         <td>
                             ${item.userId}
+                            <input type="hidden" name="txtUserId" value="${item.userId}"
                         </td>
                         <td>
                             ${item.username}
+                            <input type="hidden" name="txtUsername" value="${item.username}"/>
                         </td>
                         <td>
                             ${item.email}
+                            <input type="hidden" name="txtEmail" value="${item.email}"/>
                         </td>
                         <td>
                             ${item.phone}
+                            <input type="hidden" name="txtPhone" value="${item.phone}"/>
                         </td>
                         <td>
                             ${item.role}
+                            <input type="hidden" name="txtRole" value="${item.role}"/>
                         </td>
                         <td>
                             <img src="images/${item.image}" width="150" height="150">
+                            <input type="hidden" name="image" value="${item.image}"/>
                         </td>
                         <td>
                             <c:url var="urlRewritingDelete" value="DispathController">
@@ -93,10 +101,15 @@
                             </c:url>
                             <a href="${urlRewritingDelete}">Delete</a>
                         </td>
+                        <td>
+                            <input type="hidden" name="txtPassword" value="${item.password}"/>
+                            <input type="submit" name="btAction" value="Edit"/>
+                        </td>
                     </tr>
-                </c:forEach>                    
-            </tbody>
-        </table>
-    </c:if>    
+                </form>
+            </c:forEach>                    
+        </tbody>
+    </table>
+</c:if>    
 </body>
 </html>

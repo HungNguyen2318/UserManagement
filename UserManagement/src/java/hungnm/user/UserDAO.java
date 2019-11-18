@@ -30,16 +30,19 @@ public class UserDAO implements Serializable {
         PreparedStatement stm = null;
         ResultSet rs = null;
         String result = null;
+        System.out.println("password: " + password);
         password = getSHA_256SecurePassword(password);
         try {
             con = DButil.makeConnection();
+            System.out.println(con);
             System.out.println("ket noi vao db");
-            String sql = "select username, r.type AS type "
+            String sql = "SELECT username, r.type AS type "
                     + "FROM tbl_Role r inner join tbl_User u "
                     + "ON r.id = u.roleId "
                     + "where userId = ? and password = ? and status = ?";
             stm = con.prepareStatement(sql);
             stm.setString(1, userId);
+            System.out.println(userId);
             stm.setString(2, password);
             stm.setString(3, "active");
             rs = stm.executeQuery();
@@ -47,6 +50,8 @@ public class UserDAO implements Serializable {
                 String username = rs.getString("username");
                 String role = rs.getString("type");
                 result = username + ":" + role;
+            } else {
+                System.out.println("Failed");
             }
         } finally {
             if (con != null) {
@@ -90,17 +95,16 @@ public class UserDAO implements Serializable {
                     + "FROM tbl_Role r inner join tbl_User u "
                     + "ON r.id = u.roleId "
                     + "WHERE u.username LIKE ? AND status = ?";
-            if(roleSearchValue!=null){
+            if (roleSearchValue != null) {
                 sql = sql + " AND type = ?";
             }
             stm = con.prepareStatement(sql);
             stm.setString(1, "%" + searchValue + "%");
             stm.setString(2, "active");
-            if(roleSearchValue!=null){
+            if (roleSearchValue != null) {
                 stm.setString(3, roleSearchValue);
-            }           
+            }
             rs = stm.executeQuery();
-
             while (rs.next()) {
                 String userId = rs.getString("userId");
                 String password = rs.getString("password");
@@ -109,15 +113,6 @@ public class UserDAO implements Serializable {
                 String phone = rs.getString("phone");
                 String image = rs.getString("image");
                 String role = rs.getString("type");
-                
-                System.out.println(userId);
-                System.out.println(password);
-                System.out.println(username);
-                System.out.println(email);
-                System.out.println(phone);
-                System.out.println(image);
-                System.out.println(role);
-                
                 dto = new UserDTO(userId, password, username, email, phone, image, role, image);
                 listUser.add(dto);
             }
@@ -134,15 +129,14 @@ public class UserDAO implements Serializable {
         }
         return listUser;
     }
-    
+
     public UserDTO findByUserId(String searchValue)
             throws SQLException, NamingException {
         UserDTO dto = null;
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
-        
-      
+
         try {
             con = DButil.makeConnection();
             String sql = "SELECT userId, password, username, email, phone,image, r.type AS type "
@@ -151,7 +145,7 @@ public class UserDAO implements Serializable {
                     + "WHERE u.userId = ? AND status = ?";
             stm = con.prepareStatement(sql);
             stm.setString(1, searchValue);
-            stm.setString(2, "active");           
+            stm.setString(2, "active");
             rs = stm.executeQuery();
 
             if (rs.next()) {
@@ -162,7 +156,7 @@ public class UserDAO implements Serializable {
                 String phone = rs.getString("phone");
                 String image = rs.getString("image");
                 String role = rs.getString("type");
-                
+
                 System.out.println(userId);
                 System.out.println(password);
                 System.out.println(username);
@@ -170,7 +164,7 @@ public class UserDAO implements Serializable {
                 System.out.println(phone);
                 System.out.println(image);
                 System.out.println(role);
-                
+
                 dto = new UserDTO(userId, password, username, email, phone, image, role, image);
             }
         } finally {
@@ -186,50 +180,50 @@ public class UserDAO implements Serializable {
         }
         return dto;
     }
-    
-    public boolean createAccount(UserDTO userDTO) 
-        throws NamingException, SQLException, NoSuchAlgorithmException {
-            //1.Open connection
-            Connection con = null;
-            PreparedStatement stm = null;
-            RoleDAO roleDAO = new RoleDAO();
 
-            try {
-                con = DButil.makeConnection();
-                System.out.println("co connection");
-                if (con != null) {
-                    System.out.println("vao dc r");
-                    //2.Create sql String
-                    String sql = "INSERT INTO tbl_User(userId,password,username, email, phone , image , roleId, status) "
-                            + "values (?,?,?,?,?,?,?,?)";
-                    //3.Create Statement and set values to parameters
-                    stm = con.prepareStatement(sql);
-                    stm.setString(1, userDTO.getUserId());
-                    stm.setString(2, getSHA_256SecurePassword(userDTO.getPassword()));
-                    stm.setString(3, userDTO.getUsername());
-                    stm.setString(4, userDTO.getEmail());
-                    stm.setString(5, userDTO.getPhone());
-                    stm.setString(6, userDTO.getImage());
-                    stm.setInt(7, roleDAO.findIdByType(userDTO.getRole()));
-                    stm.setString(8, "active");
-                    //4.Execute Query
-                    int row = stm.executeUpdate();
-                    //5.Process result
-                    if (row > 0) {
-                        return true;
-                    }
-                }//end if con existed 
-            } finally {
-                if (stm != null) {
-                    stm.close();
+    public boolean createAccount(UserDTO userDTO)
+            throws NamingException, SQLException, NoSuchAlgorithmException {
+        //1.Open connection
+        Connection con = null;
+        PreparedStatement stm = null;
+        RoleDAO roleDAO = new RoleDAO();
+
+        try {
+            con = DButil.makeConnection();
+            System.out.println("co connection");
+            if (con != null) {
+                System.out.println("vao dc r");
+                //2.Create sql String
+                String sql = "INSERT INTO tbl_User(userId,password,username, email, phone , image , roleId, status) "
+                        + "values (?,?,?,?,?,?,?,?)";
+                //3.Create Statement and set values to parameters
+                stm = con.prepareStatement(sql);
+                stm.setString(1, userDTO.getUserId());
+                stm.setString(2, getSHA_256SecurePassword(userDTO.getPassword()));
+                stm.setString(3, userDTO.getUsername());
+                stm.setString(4, userDTO.getEmail());
+                stm.setString(5, userDTO.getPhone());
+                stm.setString(6, userDTO.getImage());
+                stm.setInt(7, roleDAO.findIdByType(userDTO.getRole()));
+                stm.setString(8, "active");
+                //4.Execute Query
+                int row = stm.executeUpdate();
+                //5.Process result
+                if (row > 0) {
+                    return true;
                 }
-                if (con != null) {
-                    con.close();
-                }
+            }//end if con existed 
+        } finally {
+            if (stm != null) {
+                stm.close();
             }
-            return false;
+            if (con != null) {
+                con.close();
+            }
         }
-    
+        return false;
+    }
+
     public boolean deleteUser(String userId)
             throws NamingException, SQLException {
         //1.Open connection
@@ -262,5 +256,44 @@ public class UserDAO implements Serializable {
             }
         }
         return false;
-    } 
+    }
+
+    public boolean updateUser(UserDTO userDTO)
+            throws NamingException, SQLException, NoSuchAlgorithmException {
+        Connection con = null;
+        PreparedStatement stm = null;
+        RoleDAO roleDAO = new RoleDAO();
+        try {
+            con = DButil.makeConnection();
+            if (con != null) {
+                //2.Create sql String
+                String sql = "UPDATE tbl_User "
+                        + "SET password = ? , username = ? , email = ?, phone = ? , image = ? , roleId = ? "
+                        + "Where userId = ?";
+                //3.Create Statement and set values to parameters
+                stm = con.prepareStatement(sql);
+                stm.setString(1, getSHA_256SecurePassword(userDTO.getPassword()));
+                stm.setString(2, userDTO.getUsername());
+                stm.setString(3, userDTO.getEmail());
+                stm.setString(4, userDTO.getPhone());
+                stm.setString(5, userDTO.getImage());
+                stm.setInt(6, roleDAO.findIdByType(userDTO.getRole()));
+                stm.setString(7, userDTO.getUserId());
+                //4.Execute Query
+                int row = stm.executeUpdate();
+                //5.Process result
+                if (row > 0) {
+                    return true;
+                }
+            }//end if con existed 
+        } finally {
+            if (stm != null) {
+                stm.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+        return false;
+    }
 }

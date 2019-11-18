@@ -26,8 +26,9 @@ public class DispathController extends HttpServlet {
     private final String LOGOUT_SERVLET = "LogoutServlet";
     private final String SEARCH_SERVLET = "SearchByserNameServlet";
     private final String SEARCH_BY_USERID_SERVLET = "SearchByUserIdServlet";
-    private final String CREATE_NEW_USER_SERVLET = "InsertNewUserServlet";
+    private final String EDIT_USER_SERVLET = "EditUserServlet";    
     private final String DELETE_USER_SERVLET = "DeleteUserServlet";
+    private final String MULTIPART_DISPATCH_SERVLET = "MultipartDispatchServlet";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -48,10 +49,9 @@ public class DispathController extends HttpServlet {
             if (button == null) {
                 boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
                 if (isMultiPart) {
-                    url = CREATE_NEW_USER_SERVLET;
+                    url = MULTIPART_DISPATCH_SERVLET;
                 }
             } else if (button.equals("Login")) {
-                log("create new user");
                 url = LOGIN_SERVLET;
             } else if (button.equals("Log Out")) {
                 url = LOGOUT_SERVLET;
@@ -61,6 +61,8 @@ public class DispathController extends HttpServlet {
                 url = SEARCH_BY_USERID_SERVLET;
             }else if(button.equals("Delete")){
                 url = DELETE_USER_SERVLET;
+            }else if(button.equals("Edit")){
+                url = EDIT_USER_SERVLET;
             }
         } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);

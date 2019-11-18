@@ -5,36 +5,34 @@
  */
 package hungnm.servlet;
 
-import hungnm.role.RoleDAO;
-import hungnm.role.RoleDTO;
-import hungnm.user.UserDAO;
-import hungnm.user.UserDTO;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
  *
  * @author SE130008
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
-public class LoginServlet extends HttpServlet {
-
-    private final String INVALID_PAGE = "invalid.html";
-    private final String SEARCH_PAGE = "search.jsp";
-
+@WebServlet(name = "MultipartDispatchServlet", urlPatterns = {"/MultipartDispatchServlet"})
+public class MultipartDispatchServlet extends HttpServlet {
+private final String LOGIN_PAGE = "login.html";
+private final String CREATE_NEW_USER_SERVLET = "InsertNewUserServlet";
+private final String UPDATE_USER_SERVLET = "UpdateUserServlet";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -48,52 +46,37 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String url = INVALID_PAGE;
-        String role = null;
-        String username = null;
-
+        String url = LOGIN_PAGE;
+        //1. khoi tao obj FileItemFactory
+        FileItemFactory factory = new DiskFileItemFactory();
+        //2. khoi tao obj ServletFileUpload
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        List items = null;       
         try {
-            String userId = request.getParameter("txtUsername");
-            String password = request.getParameter("txtPassword");
-
-            UserDAO dao = new UserDAO();
-            String resultUsername = dao.checkLogin(userId, password);
-            log(resultUsername);
-            if (resultUsername != null) {
-                String[] arr = resultUsername.split("[:]");
-                username = arr[0];
-                System.out.println("Username: " + username);
-                role = arr[1];
-                System.out.println("Role: " + role);
-                if (!role.equals("admin")) {
-                    String urlRewriting = "DispathController?"
-                            + "btAction=Profile"
-                            + "&key=" + userId;
-                    url = urlRewriting;
-                } else {
-                    List<UserDTO> listAllUser = dao.findByLikeName("", null);
-                    RoleDAO roleDAO = new RoleDAO();
-                    List<RoleDTO> groupOfRole = roleDAO.findRole();
-                    
-                    url = SEARCH_PAGE;
-                    HttpSession session = request.getSession();
-                    session.setAttribute("USERLOGIN", username);
-                    session.setAttribute("GROUPOFROLE", groupOfRole);
-                    request.setAttribute("RESULT_SEARCH", listAllUser);
-                }
-            }
-        } catch (SQLException ex) {
-            log("SQLException: " + ex.getMessage());
-        } catch (NamingException ex) {
-            log("NamingException: " + ex.getMessage());
-        } catch (NoSuchAlgorithmException ex) {
-            log("NoSuchAlgorithmException: " + ex.getMessage());
-        } finally {
+           items = upload.parseRequest(request);
+           //set items into Attribute
+           request.setAttribute("ITEMS", items);
+           Iterator iter = items.iterator();
+           while(iter.hasNext()){
+               FileItem item = (FileItem) iter.next();
+               if(item.isFormField()){
+                   if(item.getFieldName().equals("btAction")){
+                       String button = item.getString();
+                       if(button.equals("Register")){
+                           url = CREATE_NEW_USER_SERVLET;
+                       }else if(button.equals("Update")){
+                           url = UPDATE_USER_SERVLET;
+                       }
+                   }
+               }
+           }           
+        } catch (FileUploadException ex) {
+        Logger.getLogger(MultipartDispatchServlet.class.getName()).log(Level.SEVERE, null, ex);
+    }finally{
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
             out.close();
         }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

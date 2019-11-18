@@ -21,16 +21,59 @@
             <font color="green">Successful!!!</font>
         </c:if>
         <form action="DispathController" method="POST" enctype="multipart/form-data">
+            <c:set var="errors" value="${requestScope.ERROROBJ}"/>
             UserID: <input type="text" name="txtUserId" value=""/><br/>
+            <c:if test="${not empty errors.userIdLengthError}">
+                <font color="red">
+                    ${errors.userIdLengthError}
+                </font><br/>
+            </c:if>
             Password: <input type="password" name="txtPassword" value=""/><br/>
+            <c:if test="${not empty errors.passwordLengthError}">
+                <font color="red">
+                    ${errors.passwordLengthError}
+                </font><br/>
+            </c:if>
             Confirm: <input type="password" name="txtPasswordConfirm" value=""/><br/>
+            <c:if test="${not empty errors.confirmNotMatch}">
+                <font color="red">
+                    ${errors.confirmNotMatch}
+                </font><br/>
+            </c:if>
             Username: <input type="text" name="txtUsername" value=""/><br/>
+            <c:if test="${not empty errors.usernameLengthError}">
+                <font color="red">
+                    ${errors.usernameLengthError}
+                </font><br/>
+            </c:if>
             Email: <input type="email" name="txtEmail" value=""/><br/>
+            <c:if test="${not empty errors.emailLengthError}">
+                <font color="red">
+                    ${errors.emailLengthError}
+                </font><br/>
+            </c:if>
             Phone: <input type="number" name="txtPhone" value=""/><br/>
-            Role: <input type="text" name="txtRole" value=""/><br/>
+            <c:if test="${not empty errors.phoneLengthError}">
+                <font color="red">
+                    ${errors.phoneLengthError}
+                </font><br/>
+            </c:if>
+            Role: <select name="txtRole">
+                <c:forEach var="roleDTO" items="${sessionScope.GROUPOFROLE}">
+                    <option value="${roleDTO.type}">
+                        ${roleDTO.type}
+                    </option>
+                </c:forEach>
+            </select><br/>
             Avatar: <input type="file" name="image" value=""/><br/>
+            <c:if test="${not empty errors.imageEmpty}">
+                <font color="red">
+                    ${errors.imageEmpty}
+                </font><br/>
+            </c:if>
+            
             <input type="submit" name="btAction" value="Register"/>               
         </form>
-            <a href="search.jsp">Back to search page...</a>
+        <a href="search.jsp">Back to search page...</a>
     </body>
 </html>

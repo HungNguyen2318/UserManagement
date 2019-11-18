@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -29,8 +31,8 @@ import org.apache.commons.fileupload.FileItem;
  *
  * @author SE130008
  */
-@WebServlet(name = "InsertNewUserServlet", urlPatterns = {"/InsertNewUserServlet"})
-public class InsertNewUserServlet extends HttpServlet {
+@WebServlet(name = "UpdateUserServlet", urlPatterns = {"/UpdateUserServlet"})
+public class UpdateUserServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,15 +47,8 @@ public class InsertNewUserServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String userId = null;
-        String password = null;
-        String confirmPassword = null;
-        String username = null;
-        String email = null;
-        String phone = null;
-        String role = null;
+        List items = null;
         try {
-            List items = null;
             items = (List) request.getAttribute("ITEMS");
             Iterator iter = items.iterator();
             Hashtable params = new Hashtable();
@@ -65,55 +60,58 @@ public class InsertNewUserServlet extends HttpServlet {
                 } else {
                     try {
                         String itemName = item.getName();
+
                         fileName = itemName.substring(itemName.lastIndexOf("\\") + 1);
-                        System.out.println("path: " + fileName);
-                        String RealPath = getServletContext().getRealPath("/") + "images\\" + fileName;
-                        System.out.println("RealPath: " + RealPath);
-                        File saveFile = new File(RealPath);
-                        item.write(saveFile);
-                        System.out.println(fileName);
-                    } catch (Exception e) {
-                        
+                        if (!fileName.isEmpty()) {
+                            System.out.println("path: " + fileName);
+                            String RealPath = getServletContext().getRealPath("/") + "images\\" + fileName;
+                            System.out.println("RealPath: " + RealPath);
+                            File saveFile = new File(RealPath);
+                            item.write(saveFile);
+                            System.out.println("Filename: " + fileName);
+                        } else {
+                            fileName = (String) params.get("imageName");
+                        }
+                    } catch (Exception ex) {
+                        log("UpdateServlet: " + ex.getMessage());
                     }
                 }
+                System.out.println("Filename: " + fileName);
             }
             UserErrorObj errorObj = new UserErrorObj();
             boolean error = false;
-            userId = (String) params.get("txtUserId");
+            String userId = (String) params.get("txtUserId");
             if (userId.isEmpty()) {
                 errorObj.setUserIdLengthError("UserId is empty");
                 error = true;
             }
-            password = (String) params.get("txtPassword");
+            String password = (String) params.get("txtPassword");
             if (password.isEmpty()) {
                 errorObj.setUserIdLengthError("Password is empty");
                 error = true;
             }
-            confirmPassword = (String) params.get("txtPasswordConfirm");
+            String confirmPassword = (String) params.get("txtPasswordConfirm");
             if (!confirmPassword.equals(password)) {
                 errorObj.setConfirmNotMatch("Confirm password is not match");
                 error = true;
             }
-            username = (String) params.get("txtUsername");
+            String username = (String) params.get("txtUsername");
             if (username.isEmpty()) {
                 errorObj.setUsernameLengthError("Username is empty");
                 error = true;
             }
-            email = (String) params.get("txtEmail");
+            String email = (String) params.get("txtEmail");
             if (email.isEmpty()) {
                 errorObj.setEmailLengthError("Email is empty");
                 error = true;
             }
-            phone = (String) params.get("txtPhone");
+            String phone = (String) params.get("txtPhone");
             if (phone.isEmpty()) {
                 errorObj.setPhoneLengthError("Phone is empty");
                 error = true;
             }
-            role = (String) params.get("txtRole");
-            if(fileName.isEmpty()){
-                errorObj.setImageEmpty("Image is empty");
-                error = true;
-            }
+            String role = (String) params.get("txtRole");
+
             System.out.println(userId);
             System.out.println(password);
             System.out.println(username);
@@ -127,20 +125,18 @@ public class InsertNewUserServlet extends HttpServlet {
             } else {
                 UserDTO userDTO = new UserDTO(userId, password, username, email, phone, fileName, role, "active");
                 UserDAO userDAO = new UserDAO();
-                boolean resultCreateUser = userDAO.createAccount(userDTO);
-                request.setAttribute("RESULT_CREATR_ACCOUNT", resultCreateUser);
+                boolean resultUpdateUser = userDAO.updateUser(userDTO);
+                request.setAttribute("RESULT_UPDATE_ACCOUNT", resultUpdateUser);
             }
 
-            
-
         } catch (NamingException ex) {
-            log("NamingException: " + ex.getMessage());
+            Logger.getLogger(UpdateUserServlet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            log("SQLException: " + ex.getMessage());
+            Logger.getLogger(UpdateUserServlet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
-            log("NoSuchAlgorithmException: " + ex.getMessage());
+            Logger.getLogger(UpdateUserServlet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher("createNewUser.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("viewUserDetail.jsp");
             rd.forward(request, response);
             out.close();
         }
