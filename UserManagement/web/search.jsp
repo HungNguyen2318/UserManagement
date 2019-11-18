@@ -24,9 +24,6 @@
         Search: <input type="text" name="txtValueSearch" value="${param.txtValueSearch}">       
         <input type="submit" name="btAction" value="Search"/>
     </form>
-
-
-
     <c:set var="searchValue" value="${param.txtValueSearch}"/>
     <!-- create tab -->
     <c:set var="listRole" value="${LIST_ROLE}"/>
@@ -46,7 +43,16 @@
         </c:forEach>
     </c:if>
     <br/>        
-    <a href="createNewUser.jsp">Create new account</a>        
+    <a href="createNewUser.jsp">Create new account</a>  
+    <c:set var="message" value="${requestScope.MESSAGE}"/>
+    <c:if test="${not empty message}">
+        ${message}
+    </c:if>
+    <c:url var="viewPro" value="DispathController">
+        <c:param name="btAction" value="viewPromotion"/>
+    </c:url>
+    <a href="${viewPro}">View Promotion List</a><br/>
+    <a href="DispathController?btAction=History">Click here to view history of promotion list</a>
     <!-- create new table -->        
     <c:set var="result" value="${requestScope.RESULT_SEARCH}"/>      
     <c:if test="${not empty result}">           
@@ -62,6 +68,7 @@
                     <th>Avatar</th>
                     <th>Delete</th>
                     <th>Edit</th>
+                    <th>Add to promotion list</th>
                 </tr>
             </thead>
             <tbody>
@@ -104,6 +111,9 @@
                         <td>
                             <input type="hidden" name="txtPassword" value="${item.password}"/>
                             <input type="submit" name="btAction" value="Edit"/>
+                        </td>
+                        <td>
+                            <input type="submit" name="btAction" value="Add to Promotion List"/>
                         </td>
                     </tr>
                 </form>

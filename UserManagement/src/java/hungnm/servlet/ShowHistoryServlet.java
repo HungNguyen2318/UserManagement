@@ -5,34 +5,30 @@
  */
 package hungnm.servlet;
 
+import hungnm.promotion.PromoDAO;
+import hungnm.promotion.PromoDTO;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.servlet.RequestDispatcher;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author SE130008
  */
-public class DispathController extends HttpServlet {
+@WebServlet(name = "ShowHistoryServlet", urlPatterns = {"/ShowHistoryServlet"})
+public class ShowHistoryServlet extends HttpServlet {
 
-    private final String INIT_APP_SERVLET = "InitAppServlet";
-    private final String LOGIN_PAGE = "login.html";
-    private final String LOGIN_SERVLET = "LoginServlet";
-    private final String LOGOUT_SERVLET = "LogoutServlet";
-    private final String SEARCH_SERVLET = "SearchByserNameServlet";
-    private final String SEARCH_BY_USERID_SERVLET = "SearchByUserIdServlet";
-    private final String EDIT_USER_SERVLET = "EditUserServlet";
-    private final String DELETE_USER_SERVLET = "DeleteUserServlet";
-    private final String MULTIPART_DISPATCH_SERVLET = "MultipartDispatchServlet";
-    private final String ADD_PROMOTION_SERVLET = "AddPromotionServlet";
-    private final String CHECKOUT_SERVLET = "CheckoutServlet";
-    private final String VIEW_PROMOTION_PAGE = "viewPromotionList.jsp";
-    private final String SHOW_HISOTY_SERVLET = "ShowHistoryServlet";
+    private final String VIEWHISTORY_PAGE = "viewPromotionHistory.jsp";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -47,38 +43,26 @@ public class DispathController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String url = LOGIN_PAGE;
-        String button = request.getParameter("btAction");
+        String url = VIEWHISTORY_PAGE;
         try {
-            if (button == null) {
-                boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
-                if (isMultiPart) {
-                    url = MULTIPART_DISPATCH_SERVLET;
+            HttpSession session = request.getSession();
+            if (session.isNew()) {
+                url = "login.html";
+            } else {
+                PromoDAO promoDAO = new PromoDAO();
+                List<PromoDTO> history = promoDAO.showHistoryOfPromotion();
+                
+                for (PromoDTO DTO : history) {
+                    System.out.println("servlet:"+DTO.getUserId());
                 }
-            } else if (button.equals("Login")) {
-                url = LOGIN_SERVLET;
-            } else if (button.equals("Log Out")) {
-                url = LOGOUT_SERVLET;
-            } else if (button.equals("Search")) {
-                url = SEARCH_SERVLET;
-            } else if (button.equals("Profile")) {
-                url = SEARCH_BY_USERID_SERVLET;
-            } else if (button.equals("Delete")) {
-                url = DELETE_USER_SERVLET;
-            } else if (button.equals("Edit")) {
-                url = EDIT_USER_SERVLET;
-            } else if (button.equals("Add to Promotion List")) {
-                url = ADD_PROMOTION_SERVLET;
-            } else if (button.equals("Confirm")){
-                url = CHECKOUT_SERVLET;
-            } else if(button.equals("viewPromotion")){
-                url = VIEW_PROMOTION_PAGE;
-            } else if(button.equals("History")){
-                url = SHOW_HISOTY_SERVLET;
+                session.setAttribute("HISTORY", history);
             }
+        } catch (SQLException ex) {
+            log("ShowHistoryServlet-SQLException: " + ex.getMessage());
+        } catch (NamingException ex) {
+            log("ShowHistoryServlet-NamingException: " + ex.getMessage());
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
-            rd.forward(request, response);
+            response.sendRedirect(url);
             out.close();
         }
     }

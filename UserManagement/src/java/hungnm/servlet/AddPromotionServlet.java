@@ -5,35 +5,25 @@
  */
 package hungnm.servlet;
 
+import hungnm.promotion.PromoDAO;
+import hungnm.promotion.PromoObj;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author SE130008
  */
-public class DispathController extends HttpServlet {
-
-    private final String INIT_APP_SERVLET = "InitAppServlet";
-    private final String LOGIN_PAGE = "login.html";
-    private final String LOGIN_SERVLET = "LoginServlet";
-    private final String LOGOUT_SERVLET = "LogoutServlet";
-    private final String SEARCH_SERVLET = "SearchByserNameServlet";
-    private final String SEARCH_BY_USERID_SERVLET = "SearchByUserIdServlet";
-    private final String EDIT_USER_SERVLET = "EditUserServlet";
-    private final String DELETE_USER_SERVLET = "DeleteUserServlet";
-    private final String MULTIPART_DISPATCH_SERVLET = "MultipartDispatchServlet";
-    private final String ADD_PROMOTION_SERVLET = "AddPromotionServlet";
-    private final String CHECKOUT_SERVLET = "CheckoutServlet";
-    private final String VIEW_PROMOTION_PAGE = "viewPromotionList.jsp";
-    private final String SHOW_HISOTY_SERVLET = "ShowHistoryServlet";
-
+@WebServlet(name = "AddPromotionServlet", urlPatterns = {"/AddPromotionServlet"})
+public class AddPromotionServlet extends HttpServlet {
+private final String SEARCH_PAGE = "search.jsp";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -47,36 +37,27 @@ public class DispathController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String url = LOGIN_PAGE;
-        String button = request.getParameter("btAction");
+        String url = SEARCH_PAGE;
         try {
-            if (button == null) {
-                boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
-                if (isMultiPart) {
-                    url = MULTIPART_DISPATCH_SERVLET;
+            HttpSession session = request.getSession(false);
+            if(session!=null){
+                PromoObj proList = (PromoObj) session.getAttribute("PROMOTION");
+                if (proList == null) {
+                    proList = new PromoObj();
                 }
-            } else if (button.equals("Login")) {
-                url = LOGIN_SERVLET;
-            } else if (button.equals("Log Out")) {
-                url = LOGOUT_SERVLET;
-            } else if (button.equals("Search")) {
-                url = SEARCH_SERVLET;
-            } else if (button.equals("Profile")) {
-                url = SEARCH_BY_USERID_SERVLET;
-            } else if (button.equals("Delete")) {
-                url = DELETE_USER_SERVLET;
-            } else if (button.equals("Edit")) {
-                url = EDIT_USER_SERVLET;
-            } else if (button.equals("Add to Promotion List")) {
-                url = ADD_PROMOTION_SERVLET;
-            } else if (button.equals("Confirm")){
-                url = CHECKOUT_SERVLET;
-            } else if(button.equals("viewPromotion")){
-                url = VIEW_PROMOTION_PAGE;
-            } else if(button.equals("History")){
-                url = SHOW_HISOTY_SERVLET;
+                String uID = request.getParameter("txtUserId");
+                int rank = 5;
+                if (request.getParameter("cbxRank") != null) {
+                    rank = Integer.parseInt(request.getParameter("cbxRank"));
+                }
+                
+                boolean result = proList.addToPromotion(uID, rank);
+                if (!result) {
+                    request.setAttribute("MESSAGE", uID + " has already been in promtion list.");
+                }
+                session.setAttribute("PROMOTION", proList);
             }
-        } finally {
+        }finally{
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
             out.close();
