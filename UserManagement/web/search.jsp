@@ -43,7 +43,7 @@
         </c:forEach>
     </c:if>
     <br/>        
-    <a href="createNewUser.jsp">Create new account</a>  
+    <a href="createNewUser.jsp">Create new account</a><br/>
     <c:set var="message" value="${requestScope.MESSAGE}"/>
     <c:if test="${not empty message}">
         ${message}

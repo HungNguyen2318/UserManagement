@@ -38,6 +38,7 @@ private final String SEARCH_PAGE = "search.jsp";
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         String url = SEARCH_PAGE;
+        System.out.println("Combobox:" + request.getParameter("cbxRank"));
         try {
             HttpSession session = request.getSession(false);
             if(session!=null){

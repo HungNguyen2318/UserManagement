@@ -57,7 +57,7 @@ public class PromoDAO implements Serializable {
             con = DButil.makeConnection();
             if (con != null) {
                 String sql = "select userId,rank,pDate from promotion "
-                        + "order by pDate";
+                        + "order by pDate DESC";
                 st = con.createStatement();
                 rs = st.executeQuery(sql);
                 while (rs.next()) {

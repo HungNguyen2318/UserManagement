@@ -40,10 +40,10 @@
                             </td>
                             <td>
                                 ${item.key}
-                                <input type="hidden" name="txtUserID${counter.count}" value="${item.key}" />
+                                <input type="hidden" name="txtUserId${counter.count}" value="${item.key}" />
                             </td>
                             <td>
-                                <select name="cboOp${counter.count}">
+                                <select name="cbxRank${counter.count}">
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -55,7 +55,6 @@
                                     <option>9</option>
                                     <option>10</option>
                                 </select>
-
                             </td>
                         </tr>
                     </c:forEach>

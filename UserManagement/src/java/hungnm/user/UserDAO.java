@@ -8,6 +8,7 @@ package hungnm.user;
 import DButil.DButil;
 import hungnm.role.RoleDAO;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -65,19 +66,20 @@ public class UserDAO implements Serializable {
     }
 
     public String getSHA_256SecurePassword(String passwordToHash) throws NoSuchAlgorithmException {
-        String generatedPassword = null;
-        byte[] temp = new byte[16];
-        byte[] bytes = null;
+//        String generatedPassword = null;
+//        byte[] temp = new byte[16];
+//        byte[] bytes = null;
+//        MessageDigest md = MessageDigest.getInstance("SHA-256");
+//        md.update(temp);
+//        bytes = md.digest(passwordToHash.getBytes());
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0; i < bytes.length; i++) {
+//            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+//        }
+//        generatedPassword = sb.toString();
+//        return generatedPassword;
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(temp);
-        bytes = md.digest(passwordToHash.getBytes());
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        generatedPassword = sb.toString();
-        return generatedPassword;
-
+        return new BigInteger(1, md.digest(passwordToHash.getBytes())).toString(16);
     }
 
     public List<UserDTO> findByLikeName(String searchValue, String roleSearchValue)

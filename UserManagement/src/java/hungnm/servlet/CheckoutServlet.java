@@ -10,6 +10,7 @@ import hungnm.promotion.PromoObj;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +49,15 @@ public class CheckoutServlet extends HttpServlet {
                 PromoObj proList = (PromoObj) session.getAttribute("PROMOTION");
 
                 if (proList != null) {
-                    Map<String, Integer> items = proList.getItems();
+                    Map<String, Integer> items = null;
+                    for (int i = 1; i <= proList.getItems().size(); i++) {
+                        String userID = request.getParameter("txtUserId" + i);
+                        int rank = Integer.parseInt(request.getParameter("cbxRank" + i));
+                        if (items == null) {
+                            items = new HashMap<String, Integer>();
+                        }
+                        items.put(userID, rank);
+                    }
                     if(items != null){
                         
                         for (Map.Entry item : items.entrySet()) {
